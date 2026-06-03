@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useSignup } from '../model/useSignup';
 
 function GitHubIcon() {
   return (
@@ -51,6 +52,7 @@ function isValidPassword(password: string): boolean {
 }
 
 export function SignupForm() {
+  const { submitSignup, isLoading } = useSignup();
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,7 +60,6 @@ export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleVerifyEmail = () => {
     if (!email.trim()) {
@@ -70,6 +71,12 @@ export function SignupForm() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const username = nickname.trim();
+    if (!username) {
+      alert('이름 / 닉네임을 입력해 주세요.');
+      return;
+    }
 
     if (!isValidPassword(password)) {
       alert('비밀번호는 8자 이상이며, 대문자와 숫자를 포함해야 합니다.');
@@ -86,9 +93,7 @@ export function SignupForm() {
       return;
     }
 
-    setIsLoading(true);
-    alert('회원가입 API 연동은 준비 중입니다.');
-    setIsLoading(false);
+    void submitSignup(username, password);
   };
 
   return (
@@ -110,14 +115,14 @@ export function SignupForm() {
               htmlFor="nickname"
               className="text-secondary mb-1.5 block text-[11.5px] font-bold tracking-wide"
             >
-              이름 / 닉네임
+              아이디
             </label>
             <input
               id="nickname"
               className={inputClassName}
               type="text"
-              placeholder="김지현"
-              autoComplete="nickname"
+              placeholder="username"
+              autoComplete="username"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               disabled={isLoading}
@@ -142,7 +147,6 @@ export function SignupForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                required
               />
               <button
                 type="button"

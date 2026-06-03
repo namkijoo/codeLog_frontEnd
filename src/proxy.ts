@@ -4,6 +4,12 @@ import { isPublicPath } from '@/shared/auth/paths';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // API 요청은 백엔드(또는 rewrite)로 보내야 하므로 인증 리다이렉트 제외
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   const hasToken = Boolean(request.cookies.get(AUTH_COOKIE_KEY)?.value);
 
   if (isPublicPath(pathname)) {
