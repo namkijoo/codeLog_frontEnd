@@ -18,7 +18,7 @@ export function useLogin() {
       router.push('/');
     } catch (err) {
       const message = err instanceof Error ? err.message : '로그인에 실패했습니다.';
-      alert('로그인에 실패했습니다.');
+      alert(message);
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,11 @@
+'use client';
+
+import { AuthGuard } from '@/shared/auth';
+
 type AppProvidersProps = {
   children: React.ReactNode;
 };
 
 export function AppProviders({ children }: AppProvidersProps) {
-  return <>{children}</>;
+  return <AuthGuard>{children}</AuthGuard>;
 }

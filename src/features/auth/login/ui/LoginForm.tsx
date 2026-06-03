@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useLogin } from '../model/useLogin';
 
@@ -149,6 +150,16 @@ export function LoginForm() {
           <GoogleIcon />
           Google 로그인
         </button>
+
+        <p className="text-secondary mt-6 text-center text-[13px]">
+          아직 계정이 없으신가요?{' '}
+          <Link
+            href="/signup"
+            className="text-brand font-semibold no-underline transition-opacity hover:opacity-80"
+          >
+            회원가입 →
+          </Link>
+        </p>
       </div>
     </section>
   );
