@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useLogin } from '../model/useLogin';
 
 function GitHubIcon() {
   return (
@@ -35,23 +35,24 @@ function GoogleIcon() {
 }
 
 const inputClassName =
-  'w-full rounded-[9px] border-[1.5px] border-[#e5e3f5] bg-white px-[13px] py-[9px] text-[13.5px] text-title outline-none transition-[border-color,box-shadow] placeholder:text-muted focus:border-brand focus:shadow-[0_0_0_3px_rgba(124,58,237,.12)]';
+  'w-full rounded-[9px] border-[1.5px] border-[#e5e3f5] bg-white px-[13px] py-[9px] text-[13.5px] text-title outline-none transition-[border-color,box-shadow] placeholder:text-muted focus:border-brand focus:shadow-[0_0_0_3px_rgba(124,58,237,.12)] disabled:cursor-not-allowed disabled:opacity-60';
 
 const loginButtonClassName =
-  'flex w-full cursor-pointer items-center justify-center gap-[7px] rounded-[9px] border-0 bg-[linear-gradient(135deg,#7c3aed,#6d28d9)] py-3 text-[15px] font-semibold leading-normal text-white shadow-[0_2px_10px_rgba(109,40,217,0.3)] transition-all duration-150 hover:-translate-y-px hover:bg-[linear-gradient(135deg,#6d28d9,#5b21b6)] hover:shadow-[0_4px_18px_rgba(109,40,217,0.4)] active:scale-[0.98]';
+  'flex w-full cursor-pointer items-center justify-center gap-[7px] rounded-[9px] border-0 bg-[linear-gradient(135deg,#7c3aed,#6d28d9)] py-3 text-[15px] font-semibold leading-normal text-white shadow-[0_2px_10px_rgba(109,40,217,0.3)] transition-all duration-150 hover:-translate-y-px hover:bg-[linear-gradient(135deg,#6d28d9,#5b21b6)] hover:shadow-[0_4px_18px_rgba(109,40,217,0.4)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0';
 
 const outlineButtonClassName =
-  'flex w-full cursor-pointer items-center justify-center gap-[7px] rounded-[9px] border-[1.5px] border-[#e5e3f5] bg-white px-4 py-2 text-[13.5px] font-semibold text-body transition-all duration-150 hover:border-[#c4b5fd] hover:bg-[#faf8ff] active:scale-[0.98]';
+  'flex w-full cursor-pointer items-center justify-center gap-[7px] rounded-[9px] border-[1.5px] border-[#e5e3f5] bg-white px-4 py-2 text-[13.5px] font-semibold text-body transition-all duration-150 hover:border-[#c4b5fd] hover:bg-[#faf8ff] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60';
 
 export function LoginForm() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
+  const { submitLogin, isLoading } = useLogin();
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
 
-  const handleLogin = () => {
-    router.push('/');
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void submitLogin(username.trim(), password, remember);
   };
 
   return (
@@ -60,59 +61,79 @@ export function LoginForm() {
         <h1 className="text-title mb-1.5 text-[26px] font-extrabold tracking-tight">로그인</h1>
         <p className="text-muted text-body-s mb-[30px]">CodeLog.ai에 오신 것을 환영합니다 👋</p>
 
-        <div className="mb-4">
-          <label className="text-secondary mb-1.5 block text-[11.5px] font-bold tracking-wide">
-            이메일 주소
-          </label>
-          <input
-            className={inputClassName}
-            type="email"
-            placeholder="example@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-1.5">
-          <label className="text-secondary mb-1.5 block text-[11.5px] font-bold">비밀번호</label>
-          <div className="relative">
-            <input
-              className={`${inputClassName} pr-[42px]`}
-              type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer border-none bg-transparent text-[17px] leading-none text-muted"
-              aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label
+              htmlFor="username"
+              className="text-secondary mb-1.5 block text-[11.5px] font-bold tracking-wide"
             >
-              {showPassword ? '🙈' : '👁️'}
-            </button>
+              아이디
+            </label>
+            <input
+              id="username"
+              className={inputClassName}
+              type="text"
+              placeholder="username"
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={isLoading}
+              required
+            />
           </div>
-        </div>
 
-        <div className="mb-[18px] text-right">
-          <a href="#" className="text-brand text-xs font-semibold no-underline">
-            아이디 / 비밀번호 찾기
-          </a>
-        </div>
+          <div className="mb-1.5">
+            <label
+              htmlFor="password"
+              className="text-secondary mb-1.5 block text-[11.5px] font-bold"
+            >
+              비밀번호
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                className={`${inputClassName} pr-[42px]`}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer border-none bg-transparent text-[17px] leading-none text-muted"
+                aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                disabled={isLoading}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </div>
 
-        <label className="text-secondary mb-[22px] flex cursor-pointer items-center gap-2">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="h-[15px] w-[15px] cursor-pointer accent-brand"
-          />
-          <span className="text-body-m">로그인 유지</span>
-        </label>
+          <div className="mb-[18px] text-right">
+            <a href="#" className="text-brand text-xs font-semibold no-underline">
+              아이디 / 비밀번호 찾기
+            </a>
+          </div>
 
-        <button type="button" onClick={handleLogin} className={loginButtonClassName}>
-          🚀 로그인하기
-        </button>
+          <label className="text-secondary mb-[22px] flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-[15px] w-[15px] cursor-pointer accent-brand"
+              disabled={isLoading}
+            />
+            <span className="text-body-m">로그인 유지</span>
+          </label>
+
+          <button type="submit" disabled={isLoading} className={loginButtonClassName}>
+            {isLoading ? '로그인 중...' : '🚀 로그인하기'}
+          </button>
+        </form>
 
         <div className="my-4 flex items-center gap-3 text-xs text-[#9ca3af]">
           <span className="h-px flex-1 bg-[#e5e3f5]" />
@@ -120,11 +141,11 @@ export function LoginForm() {
           <span className="h-px flex-1 bg-[#e5e3f5]" />
         </div>
 
-        <button type="button" className={`${outlineButtonClassName} mb-2.5`}>
+        <button type="button" className={`${outlineButtonClassName} mb-2.5`} disabled={isLoading}>
           <GitHubIcon />
           GitHub 로그인
         </button>
-        <button type="button" className={outlineButtonClassName}>
+        <button type="button" className={outlineButtonClassName} disabled={isLoading}>
           <GoogleIcon />
           Google 로그인
         </button>
