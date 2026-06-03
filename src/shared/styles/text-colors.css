@@ -1,0 +1,48 @@
+:root {
+  /* TEXT COLORS */
+  --text-color-title: #1e1b4b;
+  --text-color-body: #374151;
+  --text-color-secondary: #6b7280;
+  --text-color-muted: #9ca3af;
+  --text-color-brand: #7c3aed;
+  --text-color-brand-light: #8b5cf6;
+}
+
+@theme inline {
+  --color-title: var(--text-color-title);
+  --color-body: var(--text-color-body);
+  --color-secondary: var(--text-color-secondary);
+  --color-muted: var(--text-color-muted);
+  --color-brand: var(--text-color-brand);
+  --color-brand-light: var(--text-color-brand-light);
+}
+
+/* Title · 제목, 강조 텍스트 */
+@utility text-title {
+  color: var(--text-color-title);
+}
+
+/* Body · 본문, 주요 내용 */
+@utility text-body {
+  color: var(--text-color-body);
+}
+
+/* Secondary · 부가 설명, 메타 정보 */
+@utility text-secondary {
+  color: var(--text-color-secondary);
+}
+
+/* Muted · 플레이스홀더, 비활성 */
+@utility text-muted {
+  color: var(--text-color-muted);
+}
+
+/* Brand · 강조, 액션 링크 */
+@utility text-brand {
+  color: var(--text-color-brand);
+}
+
+/* Brand Light · 섹션 타이틀, 레이블 */
+@utility text-brand-light {
+  color: var(--text-color-brand-light);
+}
