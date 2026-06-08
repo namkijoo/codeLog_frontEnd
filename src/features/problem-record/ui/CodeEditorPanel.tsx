@@ -1,9 +1,21 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { LANGUAGES } from '../model/constants';
 import type { useProblemRecord } from '../model/useProblemRecord';
 import { cardClassName, inputClassName, labelClassName } from './styles';
+
+const CodeMirrorEditor = dynamic(
+  () => import('./CodeMirrorEditor').then((mod) => mod.CodeMirrorEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="text-muted flex h-full min-h-[200px] items-center justify-center bg-[#fafafa] text-[13px]">
+        에디터 로딩 중...
+      </div>
+    ),
+  },
+);
 
 type CodeEditorPanelProps = Pick<
   ReturnType<typeof useProblemRecord>,
@@ -27,23 +39,6 @@ export function CodeEditorPanel({
   setGithubUrl,
   codeStats,
 }: CodeEditorPanelProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const lineNumbersRef = useRef<HTMLDivElement>(null);
-  const lineCount = code.split('\n').length;
-
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    const lineNumbers = lineNumbersRef.current;
-    if (!textarea || !lineNumbers) return;
-
-    const syncScroll = () => {
-      lineNumbers.scrollTop = textarea.scrollTop;
-    };
-
-    textarea.addEventListener('scroll', syncScroll);
-    return () => textarea.removeEventListener('scroll', syncScroll);
-  }, []);
-
   return (
     <section className={`${cardClassName} flex h-full flex-col`}>
       <div className="mb-3 flex items-center justify-between">
@@ -74,24 +69,8 @@ export function CodeEditorPanel({
         })}
       </div>
 
-      <div className="mb-4 flex min-h-[320px] flex-1 overflow-hidden rounded-lg border border-[#e5e3f5] bg-[#fafafa]">
-        <div
-          ref={lineNumbersRef}
-          className="text-muted shrink-0 overflow-hidden border-r border-[#e5e3f5] bg-[#f5f5f7] px-3 py-3 text-right font-mono text-[12.5px] leading-[1.6] select-none"
-          aria-hidden
-        >
-          {Array.from({ length: lineCount }, (_, i) => (
-            <div key={i + 1}>{i + 1}</div>
-          ))}
-        </div>
-        <textarea
-          ref={textareaRef}
-          className="text-body min-h-[320px] w-full flex-1 resize-none border-none bg-transparent px-3 py-3 font-mono text-[12.5px] leading-[1.6] outline-none"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          spellCheck={false}
-          aria-label="풀이 코드"
-        />
+      <div className="mb-4 flex min-h-[200px] flex-1 flex-col overflow-hidden rounded-lg border border-[#e5e3f5]">
+        <CodeMirrorEditor value={code} language={language} onChange={setCode} />
       </div>
 
       <div>

@@ -15,7 +15,7 @@ export function ProblemRecordFeature() {
           새로운 풀이를 기록해볼까요? ✏️
         </h1>
 
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <ProblemForm
             platform={record.platform}
             setPlatform={record.setPlatform}
