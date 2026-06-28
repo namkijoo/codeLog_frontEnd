@@ -40,14 +40,15 @@ export function ProblemRecordFeature() {
             setLanguage={record.setLanguage}
             code={record.code}
             setCode={record.setCode}
-            githubUrl={record.githubUrl}
-            setGithubUrl={record.setGithubUrl}
             codeStats={record.codeStats}
           />
         </div>
       </div>
 
-      <ProblemRecordFooter saveDraft={record.saveDraft} submitRecord={record.submitRecord} />
+      <ProblemRecordFooter
+        submitRecord={record.submitRecord}
+        isSubmitting={record.isSubmitting}
+      />
     </>
   );
 }

@@ -44,37 +44,32 @@ const signupButtonClassName =
 const outlineButtonClassName =
   'flex cursor-pointer items-center justify-center gap-[7px] rounded-[9px] border-[1.5px] border-[#e5e3f5] bg-white px-4 py-2 text-[13.5px] font-semibold text-body transition-all duration-150 hover:border-[#c4b5fd] hover:bg-[#faf8ff] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60';
 
-const verifyButtonClassName =
-  'absolute top-1/2 right-1.5 -translate-y-1/2 cursor-pointer rounded-[6px] border-[1.5px] border-[#e5e3f5] bg-[#faf8ff] px-2.5 py-1 text-[11.5px] font-bold text-brand transition-colors hover:border-[#c4b5fd] disabled:cursor-not-allowed disabled:opacity-60';
-
 function isValidPassword(password: string): boolean {
   return password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password);
 }
 
 export function SignupForm() {
   const { submitSignup, isLoading } = useSignup();
-  const [nickname, setNickname] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const handleVerifyEmail = () => {
-    if (!email.trim()) {
-      alert('이메일을 입력해 주세요.');
-      return;
-    }
-    alert('이메일 인증 기능은 준비 중입니다.');
-  };
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const username = nickname.trim();
-    if (!username) {
-      alert('이름 / 닉네임을 입력해 주세요.');
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      alert('이름을 입력해 주세요.');
+      return;
+    }
+
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) {
+      alert('아이디를 입력해 주세요.');
       return;
     }
 
@@ -93,7 +88,7 @@ export function SignupForm() {
       return;
     }
 
-    void submitSignup(username, password);
+    void submitSignup(trimmedName, trimmedUsername, password);
   };
 
   return (
@@ -112,19 +107,19 @@ export function SignupForm() {
         <form onSubmit={handleSubmit}>
           <div className="mb-3.5">
             <label
-              htmlFor="nickname"
+              htmlFor="name"
               className="text-secondary mb-1.5 block text-[11.5px] font-bold tracking-wide"
             >
-              아이디
+              이름
             </label>
             <input
-              id="nickname"
+              id="name"
               className={inputClassName}
               type="text"
-              placeholder="username"
-              autoComplete="username"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
+              placeholder="홍길동"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
               required
             />
@@ -132,31 +127,22 @@ export function SignupForm() {
 
           <div className="mb-3.5">
             <label
-              htmlFor="email"
+              htmlFor="username"
               className="text-secondary mb-1.5 block text-[11.5px] font-bold tracking-wide"
             >
-              이메일 주소
+              아이디
             </label>
-            <div className="relative">
-              <input
-                id="email"
-                className={`${inputClassName} pr-[62px]`}
-                type="email"
-                placeholder="example@email.com"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={handleVerifyEmail}
-                className={verifyButtonClassName}
-                disabled={isLoading}
-              >
-                인증
-              </button>
-            </div>
+            <input
+              id="username"
+              className={inputClassName}
+              type="text"
+              placeholder="username"
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={isLoading}
+              required
+            />
           </div>
 
           <div className="mb-3.5">

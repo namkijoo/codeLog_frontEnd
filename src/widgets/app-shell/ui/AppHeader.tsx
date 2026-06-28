@@ -19,19 +19,6 @@ export function AppHeader() {
       <Logo />
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2.5">
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-            style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
-            aria-hidden
-          >
-            김
-          </span>
-          <span className="text-body text-[13.5px] font-semibold">김지현</span>
-        </div>
-
-        <span className="h-4 w-px bg-[#e5e3f5]" aria-hidden />
-
         <button
           type="button"
           onClick={handleLogout}

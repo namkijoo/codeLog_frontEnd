@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
+import { getAccessToken } from '@/shared/auth/token';
 import { getApiUrl } from '@/shared/config/api';
 
 type ApiErrorBody = {
@@ -10,6 +11,14 @@ const http = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+http.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 function getErrorMessage(error: AxiosError<ApiErrorBody>): string {

@@ -1,6 +1,6 @@
-export const PLATFORMS = ['백준', '프로그래머스', 'LeetCode', 'SWEA', 'Codeforces'] as const;
+export const PLATFORMS = ['프로그래머스'] as const;
 
-export const DIFFICULTIES = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'] as const;
+export const DIFFICULTIES = ['Lv. 0', 'Lv. 1', 'Lv. 2', 'Lv. 3', 'Lv. 4', 'Lv. 5'] as const;
 
 export const LANGUAGES = [
   { id: 'python', label: 'Python', icon: '🐍' },
@@ -15,23 +15,30 @@ export type Platform = (typeof PLATFORMS)[number];
 export type Difficulty = (typeof DIFFICULTIES)[number];
 export type LanguageId = (typeof LANGUAGES)[number]['id'];
 
-export const DEFAULT_CODE = `from collections import deque
+export const DEFAULT_CODE = `function bfs(start, lab, n, m) {
+  const queue = [start];
+  let time = 0;
+  let spread = 0;
+  const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-def bfs(start, lab, n, m):
-    queue = deque([start])
-    time = 0
-    spread = 0
-    while queue:
-        for _ in range(len(queue)):
-            x, y = queue.popleft()
-            for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-                nx, ny = x+dx, y+dy
-                if 0<=nx<n and 0<=ny<m and lab[nx][ny]==0:
-                    lab[nx][ny] = 2
-                    queue.append((nx, ny))
-                    spread += 1
-        time += 1
-    return time`;
+  while (queue.length > 0) {
+    const size = queue.length;
+    for (let i = 0; i < size; i++) {
+      const [x, y] = queue.shift();
+      for (const [dx, dy] of dirs) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx >= 0 && nx < n && ny >= 0 && ny < m && lab[nx][ny] === 0) {
+          lab[nx][ny] = 2;
+          queue.push([nx, ny]);
+          spread += 1;
+        }
+      }
+    }
+    time += 1;
+  }
+  return time;
+}`;
 
 export const DEFAULT_MEMO = `• 0-1 BFS 대신 일반 BFS로 시간 계산
 • 벽(1)은 통과 불가, 바이러스(2)는 확산

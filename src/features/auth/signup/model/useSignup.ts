@@ -8,11 +8,11 @@ export function useSignup() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const submitSignup = async (username: string, password: string) => {
+  const submitSignup = async (name: string, username: string, password: string) => {
     setIsLoading(true);
 
     try {
-      await signup({ username, password });
+      await signup({ name, username, password });
       alert('회원가입이 완료되었습니다. 로그인해 주세요.');
       router.push('/login');
     } catch (err) {
