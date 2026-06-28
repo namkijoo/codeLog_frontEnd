@@ -23,7 +23,9 @@ type ProblemFormProps = Pick<
   | 'handleTagKeyDown'
   | 'memo'
   | 'setMemo'
->;
+> & {
+  readOnly?: boolean;
+};
 
 function LinkIcon() {
   return (
@@ -52,12 +54,20 @@ export function ProblemForm({
   handleTagKeyDown,
   memo,
   setMemo,
+  readOnly = false,
 }: ProblemFormProps) {
   return (
     <div className="flex flex-col gap-4">
       <section className={cardClassName}>
         <div className="mb-4">
           <span className={labelClassName}>플랫폼명</span>
+          {readOnly ? (
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-brand bg-brand px-3.5 py-1.5 text-[12.5px] font-semibold text-white">
+                {platform}
+              </span>
+            </div>
+          ) : (
           <div className="flex flex-wrap gap-2">
             {PLATFORMS.map((item) => {
               const isSelected = platform === item;
@@ -77,6 +87,7 @@ export function ProblemForm({
               );
             })}
           </div>
+          )}
         </div>
 
         <div className="mb-4 grid grid-cols-2 gap-3">
@@ -91,6 +102,7 @@ export function ProblemForm({
               value={problemNumber}
               onChange={(e) => setProblemNumber(e.target.value)}
               placeholder="14502"
+              readOnly={readOnly}
             />
           </div>
           <div>
@@ -99,9 +111,10 @@ export function ProblemForm({
             </label>
             <select
               id="difficulty"
-              className={`${inputClassName} cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-size-[12px] bg-position-[right_12px_center] bg-no-repeat pr-9`}
+              className={`${inputClassName} ${readOnly ? '' : 'cursor-pointer'} appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-size-[12px] bg-position-[right_12px_center] bg-no-repeat pr-9`}
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value as typeof difficulty)}
+              disabled={readOnly}
             >
               {DIFFICULTIES.map((item) => (
                 <option key={item} value={item}>
@@ -123,6 +136,7 @@ export function ProblemForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="문제 제목"
+            readOnly={readOnly}
           />
         </div>
 
@@ -141,6 +155,7 @@ export function ProblemForm({
               value={problemUrl}
               onChange={(e) => setProblemUrl(e.target.value)}
               placeholder="https://"
+              readOnly={readOnly}
             />
           </div>
         </div>
@@ -155,26 +170,30 @@ export function ProblemForm({
                   className="inline-flex items-center gap-1 rounded-md bg-[#f3f0ff] px-2 py-1 text-[12px] font-semibold text-brand"
                 >
                   {tag}
-                  <button
-                    type="button"
-                    onClick={() => removeTag(tag)}
-                    className="text-brand/60 hover:text-brand cursor-pointer border-none bg-transparent p-0 text-[11px] leading-none"
-                    aria-label={`${tag} 태그 제거`}
-                  >
-                    ×
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="text-brand/60 hover:text-brand cursor-pointer border-none bg-transparent p-0 text-[11px] leading-none"
+                      aria-label={`${tag} 태그 제거`}
+                    >
+                      ×
+                    </button>
+                  )}
                 </span>
               ))}
             </div>
           )}
-          <input
-            className={inputClassName}
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            placeholder="태그 입력 후 Enter"
-          />
+          {!readOnly && (
+            <input
+              className={inputClassName}
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              placeholder="태그 입력 후 Enter"
+            />
+          )}
         </div>
       </section>
 
@@ -185,6 +204,7 @@ export function ProblemForm({
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
           placeholder="풀이 과정, 핵심 아이디어, 주의할 점 등을 기록하세요"
+          readOnly={readOnly}
         />
       </section>
     </div>

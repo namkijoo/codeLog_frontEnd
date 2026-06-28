@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { LANGUAGES } from '../model/constants';
 import type { useProblemRecord } from '../model/useProblemRecord';
-import { cardClassName, inputClassName, labelClassName } from './styles';
+import { cardClassName } from './styles';
 
 const CodeMirrorEditor = dynamic(
   () => import('./CodeMirrorEditor').then((mod) => mod.CodeMirrorEditor),
@@ -20,7 +20,9 @@ const CodeMirrorEditor = dynamic(
 type CodeEditorPanelProps = Pick<
   ReturnType<typeof useProblemRecord>,
   'language' | 'setLanguage' | 'code' | 'setCode' | 'codeStats'
->;
+> & {
+  readOnly?: boolean;
+};
 
 export function CodeEditorPanel({
   language,
@@ -28,6 +30,7 @@ export function CodeEditorPanel({
   code,
   setCode,
   codeStats,
+  readOnly = false,
 }: CodeEditorPanelProps) {
   return (
     <section className={`${cardClassName} flex h-full flex-col`}>
@@ -41,12 +44,16 @@ export function CodeEditorPanel({
       <div className="mb-3 flex flex-wrap gap-1.5">
         {LANGUAGES.map((item) => {
           const isSelected = language === item.id;
+          if (readOnly && !isSelected) return null;
           return (
             <button
               key={item.id}
               type="button"
               onClick={() => setLanguage(item.id)}
-              className={`flex cursor-pointer items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold transition-colors ${
+              disabled={readOnly}
+              className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold transition-colors ${
+                readOnly ? 'cursor-default' : 'cursor-pointer'
+              } ${
                 isSelected
                   ? 'border-brand bg-[#f3f0ff] text-brand'
                   : 'border-[#e5e3f5] bg-white text-secondary hover:border-[#c4b5fd] hover:bg-[#faf8ff]'
@@ -60,7 +67,12 @@ export function CodeEditorPanel({
       </div>
 
       <div className="mb-4 flex min-h-[200px] flex-1 flex-col overflow-hidden rounded-lg border border-[#e5e3f5]">
-        <CodeMirrorEditor value={code} language={language} onChange={setCode} />
+        <CodeMirrorEditor
+          value={code}
+          language={language}
+          onChange={setCode}
+          readOnly={readOnly}
+        />
       </div>
     </section>
   );

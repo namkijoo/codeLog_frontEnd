@@ -1,7 +1,9 @@
 'use client';
 
 import CodeMirror from '@uiw/react-codemirror';
-import { useEffect, useRef, useState } from 'react';
+import { EditorState } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { LanguageId } from '../model/constants';
 import { codeEditorTheme } from '../lib/editorTheme';
 import { getLanguageExtension } from '../lib/languageExtensions';
@@ -10,9 +12,10 @@ type CodeMirrorEditorProps = {
   value: string;
   language: LanguageId;
   onChange: (value: string) => void;
+  readOnly?: boolean;
 };
 
-export function CodeMirrorEditor({ value, language, onChange }: CodeMirrorEditorProps) {
+export function CodeMirrorEditor({ value, language, onChange, readOnly = false }: CodeMirrorEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
 
@@ -32,6 +35,12 @@ export function CodeMirrorEditor({ value, language, onChange }: CodeMirrorEditor
     return () => observer.disconnect();
   }, []);
 
+  const extensions = useMemo(() => {
+    const base = [...codeEditorTheme, ...getLanguageExtension(language)];
+    if (!readOnly) return base;
+    return [...base, EditorState.readOnly.of(true), EditorView.editable.of(false)];
+  }, [language, readOnly]);
+
   return (
     <div ref={containerRef} className="h-full min-h-0 w-full">
       {height > 0 && (
@@ -39,17 +48,17 @@ export function CodeMirrorEditor({ value, language, onChange }: CodeMirrorEditor
           value={value}
           height={`${height}px`}
           theme="none"
-          extensions={[...codeEditorTheme, ...getLanguageExtension(language)]}
+          extensions={extensions}
           onChange={onChange}
           basicSetup={{
             lineNumbers: true,
-            highlightActiveLineGutter: true,
-            highlightActiveLine: true,
+            highlightActiveLineGutter: !readOnly,
+            highlightActiveLine: !readOnly,
             foldGutter: false,
-            dropCursor: true,
-            indentOnInput: true,
+            dropCursor: !readOnly,
+            indentOnInput: !readOnly,
             bracketMatching: true,
-            closeBrackets: true,
+            closeBrackets: !readOnly,
             autocompletion: false,
             rectangularSelection: false,
             crosshairCursor: false,

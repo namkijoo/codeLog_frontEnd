@@ -1,3 +1,6 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import type { BoardResponse } from '../model/types';
 
 function getDifficultyClass(difficulty: string): string {
@@ -24,6 +27,8 @@ export function CompletedProblemsTable({
   isLoading,
   error,
 }: CompletedProblemsTableProps) {
+  const router = useRouter();
+
   if (isLoading) {
     return (
       <div className="text-muted flex min-h-[320px] items-center justify-center rounded-xl border border-[#e5e3f5] bg-white text-[14px]">
@@ -67,7 +72,11 @@ export function CompletedProblemsTable({
           </thead>
           <tbody>
             {boards.map((board) => (
-              <tr key={board.id} className="border-b border-[#f3f0ff] last:border-b-0 hover:bg-[#fcfbff]">
+              <tr
+                key={board.id}
+                onClick={() => router.push(`/completed/${board.id}`)}
+                className="cursor-pointer border-b border-[#f3f0ff] last:border-b-0 hover:bg-[#fcfbff]"
+              >
                 <td className="text-secondary px-4 py-3.5 text-[13px] whitespace-nowrap">
                   {formatDate(board.createdAt)}
                 </td>
