@@ -102,7 +102,7 @@ export function ProblemForm({
               value={problemNumber}
               onChange={(e) => setProblemNumber(e.target.value)}
               placeholder="14502"
-              readOnly={readOnly}
+              disabled={readOnly}
             />
           </div>
           <div>
@@ -136,7 +136,7 @@ export function ProblemForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="문제 제목"
-            readOnly={readOnly}
+            disabled={readOnly}
           />
         </div>
 
@@ -155,7 +155,7 @@ export function ProblemForm({
               value={problemUrl}
               onChange={(e) => setProblemUrl(e.target.value)}
               placeholder="https://"
-              readOnly={readOnly}
+              disabled={readOnly}
             />
           </div>
         </div>
@@ -204,7 +204,7 @@ export function ProblemForm({
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
           placeholder="풀이 과정, 핵심 아이디어, 주의할 점 등을 기록하세요"
-          readOnly={readOnly}
+          disabled={readOnly}
         />
       </section>
     </div>

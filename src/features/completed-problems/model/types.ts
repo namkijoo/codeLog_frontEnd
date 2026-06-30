@@ -1,3 +1,15 @@
+export type BoardRequest = {
+  problemNumber: number;
+  problemUrl: string;
+  platformName: string;
+  tags: string[];
+  difficulty: string;
+  title: string;
+  memo: string;
+  language: string;
+  code: string;
+};
+
 export type BoardResponse = {
   id: number;
   username: string;

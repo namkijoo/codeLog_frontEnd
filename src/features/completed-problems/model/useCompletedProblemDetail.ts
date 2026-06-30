@@ -42,5 +42,5 @@ export function useCompletedProblemDetail(boardId: number | null) {
     void fetchBoard();
   }, [fetchBoard]);
 
-  return { board, isLoading, error };
+  return { board, setBoard, isLoading, error };
 }

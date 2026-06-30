@@ -2,28 +2,18 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useMemo } from 'react';
 import { CodeEditorPanel } from '@/features/problem-record/ui/CodeEditorPanel';
 import { ProblemForm } from '@/features/problem-record/ui/ProblemForm';
-import type { Difficulty, Platform } from '@/features/problem-record/model/constants';
-import { resolveLanguageId } from '../lib/resolveLanguageId';
 import { useCompletedProblemDetail } from '../model/useCompletedProblemDetail';
-
-const noop = () => {};
+import { useCompletedProblemEdit } from '../model/useCompletedProblemEdit';
+import { CompletedProblemDetailFooter } from './CompletedProblemDetailFooter';
 
 export function CompletedProblemDetailFeature() {
   const params = useParams<{ id: string }>();
   const boardId = Number.parseInt(params.id, 10);
   const parsedId = Number.isFinite(boardId) ? boardId : null;
-  const { board, isLoading, error } = useCompletedProblemDetail(parsedId);
-
-  const language = board ? resolveLanguageId(board.language) : 'javascript';
-  const codeStats = useMemo(() => {
-    if (!board) return { lines: 0, chars: 0 };
-    const lines = board.code.split('\n').length;
-    const chars = board.code.length;
-    return { lines, chars };
-  }, [board]);
+  const { board, setBoard, isLoading, error } = useCompletedProblemDetail(parsedId);
+  const edit = useCompletedProblemEdit(board, setBoard);
 
   if (isLoading) {
     return (
@@ -57,39 +47,47 @@ export function CompletedProblemDetailFeature() {
           ← 완료된 문제 리스트
         </Link>
 
-        <h1 className="text-title mb-6 text-[22px] font-extrabold tracking-tight">{board.title}</h1>
+        <h1 className="text-title mb-6 text-[22px] font-extrabold tracking-tight">{edit.title}</h1>
 
         <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <ProblemForm
-            readOnly
-            platform={board.platformName as Platform}
-            setPlatform={noop}
-            problemNumber={String(board.problemNumber)}
-            setProblemNumber={noop}
-            difficulty={board.difficulty as Difficulty}
-            setDifficulty={noop}
-            title={board.title}
-            setTitle={noop}
-            problemUrl={board.problemUrl}
-            setProblemUrl={noop}
-            tags={board.tags}
-            tagInput=""
-            setTagInput={noop}
-            removeTag={noop}
-            handleTagKeyDown={noop}
-            memo={board.memo}
-            setMemo={noop}
+            readOnly={!edit.isEditing}
+            platform={edit.platform}
+            setPlatform={edit.setPlatform}
+            problemNumber={edit.problemNumber}
+            setProblemNumber={edit.setProblemNumber}
+            difficulty={edit.difficulty}
+            setDifficulty={edit.setDifficulty}
+            title={edit.title}
+            setTitle={edit.setTitle}
+            problemUrl={edit.problemUrl}
+            setProblemUrl={edit.setProblemUrl}
+            tags={edit.tags}
+            tagInput={edit.tagInput}
+            setTagInput={edit.setTagInput}
+            removeTag={edit.removeTag}
+            handleTagKeyDown={edit.handleTagKeyDown}
+            memo={edit.memo}
+            setMemo={edit.setMemo}
           />
           <CodeEditorPanel
-            readOnly
-            language={language}
-            setLanguage={noop}
-            code={board.code}
-            setCode={noop}
-            codeStats={codeStats}
+            readOnly={!edit.isEditing}
+            language={edit.language}
+            setLanguage={edit.setLanguage}
+            code={edit.code}
+            setCode={edit.setCode}
+            codeStats={edit.codeStats}
           />
         </div>
       </div>
+
+      <CompletedProblemDetailFooter
+        isEditing={edit.isEditing}
+        isSubmitting={edit.isSubmitting}
+        startEdit={edit.startEdit}
+        cancelEdit={edit.cancelEdit}
+        saveEdit={edit.saveEdit}
+      />
     </div>
   );
 }

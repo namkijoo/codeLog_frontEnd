@@ -45,9 +45,11 @@ export function CodeMirrorEditor({ value, language, onChange, readOnly = false }
     <div ref={containerRef} className="h-full min-h-0 w-full">
       {height > 0 && (
         <CodeMirror
+          key={readOnly ? 'readonly' : 'editable'}
           value={value}
           height={`${height}px`}
           theme="none"
+          editable={!readOnly}
           extensions={extensions}
           onChange={onChange}
           basicSetup={{

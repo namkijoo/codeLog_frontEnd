@@ -68,6 +68,7 @@ export function CodeEditorPanel({
 
       <div className="mb-4 flex min-h-[200px] flex-1 flex-col overflow-hidden rounded-lg border border-[#e5e3f5]">
         <CodeMirrorEditor
+          key={readOnly ? 'readonly' : 'editable'}
           value={code}
           language={language}
           onChange={setCode}
