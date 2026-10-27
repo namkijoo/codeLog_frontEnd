@@ -60,14 +60,16 @@ export function CompletedProblemsTable({
         <table className="w-full min-w-[960px] border-collapse">
           <thead>
             <tr className="border-b border-[#e5e3f5] bg-[#faf8ff]">
-              {['날짜', '문제 제목', '플랫폼', '난이도', '핵심 태그', '메모'].map((label) => (
-                <th
-                  key={label}
-                  className="text-secondary px-4 py-3 text-left text-[11.5px] font-bold tracking-wide whitespace-nowrap"
-                >
-                  {label}
-                </th>
-              ))}
+              {['날짜', '문제 번호', '문제 제목', '플랫폼', '난이도', '핵심 태그', '메모'].map(
+                (label) => (
+                  <th
+                    key={label}
+                    className="text-secondary px-4 py-3 text-left text-[11.5px] font-bold tracking-wide whitespace-nowrap"
+                  >
+                    {label}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
@@ -79,6 +81,9 @@ export function CompletedProblemsTable({
               >
                 <td className="text-secondary px-4 py-3.5 text-[13px] whitespace-nowrap">
                   {formatDate(board.createdAt)}
+                </td>
+                <td className="text-secondary px-4 py-3.5 text-[13px] whitespace-nowrap">
+                  {board.problemNumber}
                 </td>
                 <td className="text-title px-4 py-3.5 text-[13.5px] font-semibold">
                   {board.title}
