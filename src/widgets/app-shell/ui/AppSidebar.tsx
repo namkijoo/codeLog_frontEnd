@@ -27,15 +27,6 @@ function DocumentIcon() {
   );
 }
 
-function RobotIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <rect x="5" y="8" width="14" height="11" rx="2" />
-      <path d="M12 8V5M8 5h8M9 14h.01M15 14h.01M10 18h4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function PencilIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -47,7 +38,6 @@ function PencilIcon() {
 const NAV_ITEMS: NavItem[] = [
   { href: '/', label: '홈', icon: <HomeIcon /> },
   { href: '/completed', label: '완료된 문제', icon: <DocumentIcon /> },
-  { href: '/ai-analysis', label: 'AI 분석', icon: <RobotIcon /> },
   { href: '/problems', label: '문제 기록', icon: <PencilIcon /> },
 ];
 
