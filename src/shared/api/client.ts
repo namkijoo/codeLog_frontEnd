@@ -1,5 +1,5 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
-import { getAccessToken } from '@/shared/auth/token';
+import { clearAuthTokens, getAccessToken } from '@/shared/auth/token';
 import { getApiUrl } from '@/shared/config/api';
 
 type ApiErrorBody = {
@@ -20,6 +20,34 @@ http.interceptors.request.use((config) => {
   }
   return config;
 });
+
+function isAuthEntryRequest(url = ''): boolean {
+  return url.includes('/api/auth/login') || url.includes('/api/auth/signup');
+}
+
+function redirectToLogin(): void {
+  if (typeof window === 'undefined') return;
+
+  clearAuthTokens();
+
+  const { pathname, search } = window.location;
+  if (pathname.startsWith('/login')) return;
+
+  const from = `${pathname}${search}`;
+  window.location.replace(`/login?from=${encodeURIComponent(from)}`);
+}
+
+http.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      if (!isAuthEntryRequest(error.config?.url)) {
+        redirectToLogin();
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 function getErrorMessage(error: AxiosError<ApiErrorBody>): string {
   const data = error.response?.data;
