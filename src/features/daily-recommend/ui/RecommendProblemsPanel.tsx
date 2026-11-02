@@ -1,5 +1,6 @@
 'use client';
 
+import { Spinner } from '@/shared/ui';
 import type { RecommendationItem } from '../model/types';
 import { RecommendProblemRow } from './RecommendProblemRow';
 
@@ -41,8 +42,8 @@ export function RecommendProblemsPanel({
 
       <div className="flex flex-1 flex-col">
         {isLoading && (
-          <div className="text-muted flex flex-1 items-center justify-center px-5 py-10 text-[13.5px]">
-            맞춤 문제를 추천하는 중...
+          <div className="flex flex-1 items-center justify-center px-5 py-10">
+            <Spinner label="맞춤 문제를 추천하는 중" />
           </div>
         )}
 
