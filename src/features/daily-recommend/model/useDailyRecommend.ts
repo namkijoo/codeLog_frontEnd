@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getDailyRecommend } from '../api/recommend';
+import { readRecommendCache, writeRecommendCache } from '../lib/cache';
 import type { DailyRecommendResponse } from './types';
 
 export function useDailyRecommend() {
@@ -9,6 +10,13 @@ export function useDailyRecommend() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasRequested, setHasRequested] = useState(false);
+
+  useEffect(() => {
+    const cached = readRecommendCache();
+    if (!cached) return;
+    setData(cached);
+    setHasRequested(true);
+  }, []);
 
   const fetchRecommend = useCallback(async () => {
     setHasRequested(true);
@@ -18,6 +26,7 @@ export function useDailyRecommend() {
     try {
       const response = await getDailyRecommend();
       setData(response);
+      writeRecommendCache(response);
     } catch (err) {
       const message = err instanceof Error ? err.message : '추천을 불러오지 못했습니다.';
       setError(message);

@@ -7,6 +7,10 @@ import {
   REFRESH_TOKEN_KEY,
 } from './constants';
 
+/** Keep in sync with features/daily-recommend/lib/cache.ts */
+const DAILY_RECOMMEND_CACHE_KEY = 'codelog:daily-recommend';
+const DAILY_FEEDBACK_CACHE_KEY = 'codelog:daily-feedback';
+
 type AuthTokenResponse = {
   accessToken?: string;
   token?: string;
@@ -95,4 +99,6 @@ export function getAccessToken(): string | null {
 export function clearAuthTokens(): void {
   clearTokenStorage();
   clearAuthCookie();
+  localStorage.removeItem(DAILY_RECOMMEND_CACHE_KEY);
+  localStorage.removeItem(DAILY_FEEDBACK_CACHE_KEY);
 }
