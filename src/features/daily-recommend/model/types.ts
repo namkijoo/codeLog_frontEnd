@@ -16,5 +16,6 @@ export type DailyRecommendFeedback = {
 export type DailyRecommendResponse = {
   date: string;
   recommendations: RecommendationItem[];
-  feedback?: DailyRecommendFeedback;
 };
+
+export type FeedbackResponse = DailyRecommendFeedback;

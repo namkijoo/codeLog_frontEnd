@@ -1,6 +1,7 @@
 'use client';
 
 import { useDailyRecommend } from '../model/useDailyRecommend';
+import { useFeedback } from '../model/useFeedback';
 import { RecommendFeedbackPanel } from './RecommendFeedbackPanel';
 import { RecommendProblemsPanel } from './RecommendProblemsPanel';
 
@@ -10,22 +11,25 @@ type DailyRecommendFeatureProps = {
 };
 
 export function DailyRecommendFeature({ embedded = false }: DailyRecommendFeatureProps) {
-  const { data, isLoading, error, hasRequested, fetchRecommend } = useDailyRecommend();
+  const recommend = useDailyRecommend();
+  const feedback = useFeedback();
 
   const panels = (
     <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
       <RecommendProblemsPanel
-        recommendations={data?.recommendations ?? []}
-        date={data?.date}
-        isLoading={isLoading}
-        error={error}
-        hasRequested={hasRequested}
-        onRequest={() => void fetchRecommend()}
+        recommendations={recommend.data?.recommendations ?? []}
+        date={recommend.data?.date}
+        isLoading={recommend.isLoading}
+        error={recommend.error}
+        hasRequested={recommend.hasRequested}
+        onRequest={() => void recommend.fetchRecommend()}
       />
       <RecommendFeedbackPanel
-        feedback={data?.feedback}
-        isLoading={isLoading}
-        hasRequested={hasRequested}
+        feedback={feedback.data}
+        isLoading={feedback.isLoading}
+        error={feedback.error}
+        hasRequested={feedback.hasRequested}
+        onRequest={() => void feedback.fetchFeedback()}
       />
     </div>
   );
