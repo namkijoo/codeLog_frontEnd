@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 const apiBackendUrl = process.env.API_BACKEND_URL ?? 'http://localhost:8080';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   turbopack: {
     root: import.meta.dirname,
   },
