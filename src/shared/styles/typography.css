@@ -1,7 +1,7 @@
 :root {
-  /* Font family (layout에서 --font-sans, --font-mono 주입) */
-  --font-family-sans: var(--font-sans), system-ui, sans-serif;
-  --font-family-mono: var(--font-mono), ui-monospace, monospace;
+  /* Font family (시스템 폰트 — Docker 빌드 시 Google Fonts 네트워크 불필요) */
+  --font-family-sans: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* Font weight */
   --font-weight-regular: 400;
