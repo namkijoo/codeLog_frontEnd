@@ -1,12 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   type Difficulty,
   type LanguageId,
   type Platform,
 } from '@/features/problem-record/model/constants';
-import { updateBoard } from '../api/boards';
+import { deleteBoard, updateBoard } from '../api/boards';
 import { buildBoardRequest } from '../lib/buildBoardRequest';
 import { resolveLanguageId } from '../lib/resolveLanguageId';
 import type { BoardResponse } from './types';
@@ -30,6 +31,7 @@ export function useCompletedProblemEdit(
   board: BoardResponse | null,
   onUpdated: (board: BoardResponse) => void,
 ) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [platform, setPlatform] = useState<Platform>('프로그래머스');
@@ -152,6 +154,23 @@ export function useCompletedProblemEdit(
     resetFromBoard,
   ]);
 
+  const removeBoard = useCallback(async () => {
+    if (!board || isSubmitting) return;
+    if (!window.confirm('이 게시글을 삭제하시겠습니까?')) return;
+
+    setIsSubmitting(true);
+
+    try {
+      await deleteBoard(board.id);
+      window.alert('삭제되었습니다.');
+      router.push('/completed');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '삭제에 실패했습니다.';
+      window.alert(message);
+      setIsSubmitting(false);
+    }
+  }, [board, isSubmitting, router]);
+
   return {
     isEditing,
     isSubmitting,
@@ -181,5 +200,6 @@ export function useCompletedProblemEdit(
     startEdit,
     cancelEdit,
     saveEdit,
+    removeBoard,
   };
 }

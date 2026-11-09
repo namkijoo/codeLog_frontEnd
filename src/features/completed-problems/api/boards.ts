@@ -13,3 +13,9 @@ export function updateBoard(id: number, request: BoardRequest) {
     data: request,
   });
 }
+
+export function deleteBoard(id: number) {
+  return apiClient<void>(`/api/boards/${id}`, {
+    method: 'DELETE',
+  });
+}

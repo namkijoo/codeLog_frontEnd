@@ -87,6 +87,7 @@ export function CompletedProblemDetailFeature() {
         startEdit={edit.startEdit}
         cancelEdit={edit.cancelEdit}
         saveEdit={edit.saveEdit}
+        removeBoard={edit.removeBoard}
       />
     </div>
   );
