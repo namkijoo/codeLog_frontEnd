@@ -33,69 +33,45 @@ export function useNotes() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipNextSaveRef = useRef(false);
   const activeNoteIdRef = useRef<number | null>(null);
+  const draftRef = useRef({ title: '', content: '' });
+  const activeNoteRef = useRef<NoteResponse | null>(null);
 
   useEffect(() => {
     activeNoteIdRef.current = activeNote?.id ?? null;
-  }, [activeNote?.id]);
+    activeNoteRef.current = activeNote;
+  }, [activeNote]);
 
-  const loadFolders = useCallback(async (preferFolderId?: number | null) => {
+  useEffect(() => {
+    draftRef.current = { title: draftTitle, content: draftContent };
+  }, [draftTitle, draftContent]);
+
+  const loadFolders = useCallback(async () => {
     setIsFoldersLoading(true);
     setError(null);
 
     try {
       const data = await getFolders();
       setFolders(data);
-
-      const nextFolderId =
-        preferFolderId != null && data.some((folder) => folder.id === preferFolderId)
-          ? preferFolderId
-          : (data[0]?.id ?? null);
-
-      setSelectedFolderId(nextFolderId);
-      if (nextFolderId == null) {
-        setNotes([]);
-        setSelectedNoteId(null);
-        setActiveNote(null);
-        setDraftTitle('');
-        setDraftContent('');
-      }
     } catch (err) {
       const message = err instanceof Error ? err.message : '폴더를 불러오지 못했습니다.';
       setError(message);
       setFolders([]);
-      setSelectedFolderId(null);
     } finally {
       setIsFoldersLoading(false);
     }
   }, []);
 
-  const loadNotes = useCallback(async (folderId: number, preferNoteId?: number | null) => {
+  const loadNotes = useCallback(async (folderId: number) => {
     setIsNotesLoading(true);
     setActionError(null);
 
     try {
       const data = await getNotesByFolder(folderId);
       setNotes(data);
-
-      const nextNoteId =
-        preferNoteId != null && data.some((note) => note.id === preferNoteId)
-          ? preferNoteId
-          : null;
-
-      setSelectedNoteId(nextNoteId);
-      if (nextNoteId == null) {
-        setActiveNote(null);
-        setDraftTitle('');
-        setDraftContent('');
-      }
     } catch (err) {
       const message = err instanceof Error ? err.message : '노트를 불러오지 못했습니다.';
       setActionError(message);
       setNotes([]);
-      setSelectedNoteId(null);
-      setActiveNote(null);
-      setDraftTitle('');
-      setDraftContent('');
     } finally {
       setIsNotesLoading(false);
     }
@@ -127,7 +103,10 @@ export function useNotes() {
   }, [loadFolders]);
 
   useEffect(() => {
-    if (selectedFolderId == null) return;
+    if (selectedFolderId == null) {
+      setNotes([]);
+      return;
+    }
     void loadNotes(selectedFolderId);
   }, [selectedFolderId, loadNotes]);
 
@@ -197,7 +176,7 @@ export function useNotes() {
     };
   }, [activeNote, draftTitle, draftContent, persistNote]);
 
-  const selectFolder = useCallback((folderId: number) => {
+  const openFolder = useCallback((folderId: number) => {
     setSelectedFolderId(folderId);
     setSelectedNoteId(null);
     setActiveNote(null);
@@ -206,10 +185,71 @@ export function useNotes() {
     setActionError(null);
   }, []);
 
-  const selectNote = useCallback((noteId: number) => {
+  const leaveFolder = useCallback(() => {
+    setSelectedFolderId(null);
+    setSelectedNoteId(null);
+    setActiveNote(null);
+    setDraftTitle('');
+    setDraftContent('');
+    setNotes([]);
+    setActionError(null);
+  }, []);
+
+  const flushPendingSave = useCallback(async () => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+
+    const note = activeNoteRef.current;
+    if (!note) return;
+
+    const { title, content } = draftRef.current;
+    if (title === note.title && content === note.content) return;
+
+    await persistNote(note.id, title, content);
+  }, [persistNote]);
+
+  const openNote = useCallback((noteId: number) => {
     setSelectedNoteId(noteId);
     setActionError(null);
   }, []);
+
+  const leaveNote = useCallback(() => {
+    void flushPendingSave();
+    setSelectedNoteId(null);
+    setActiveNote(null);
+    setDraftTitle('');
+    setDraftContent('');
+    setActionError(null);
+  }, [flushPendingSave]);
+
+  const currentNoteIndex =
+    selectedNoteId == null ? -1 : notes.findIndex((note) => note.id === selectedNoteId);
+  const hasPrevNote = currentNoteIndex > 0;
+  const hasNextNote = currentNoteIndex >= 0 && currentNoteIndex < notes.length - 1;
+
+  const goToPrevNote = useCallback(() => {
+    if (currentNoteIndex <= 0) return;
+    const prev = notes[currentNoteIndex - 1];
+    if (!prev) return;
+    void (async () => {
+      await flushPendingSave();
+      setSelectedNoteId(prev.id);
+      setActionError(null);
+    })();
+  }, [currentNoteIndex, notes, flushPendingSave]);
+
+  const goToNextNote = useCallback(() => {
+    if (currentNoteIndex < 0 || currentNoteIndex >= notes.length - 1) return;
+    const next = notes[currentNoteIndex + 1];
+    if (!next) return;
+    void (async () => {
+      await flushPendingSave();
+      setSelectedNoteId(next.id);
+      setActionError(null);
+    })();
+  }, [currentNoteIndex, notes, flushPendingSave]);
 
   const handleCreateFolder = useCallback(async () => {
     const title = window.prompt('새 폴더 이름');
@@ -225,11 +265,6 @@ export function useNotes() {
     try {
       const created = await createFolder({ title: trimmed });
       setFolders((prev) => [...prev, created].sort((a, b) => a.sortOrder - b.sortOrder));
-      setSelectedFolderId(created.id);
-      setSelectedNoteId(null);
-      setActiveNote(null);
-      setDraftTitle('');
-      setDraftContent('');
     } catch (err) {
       const message = err instanceof Error ? err.message : '폴더 생성에 실패했습니다.';
       setActionError(message);
@@ -282,17 +317,15 @@ export function useNotes() {
       setActionError(null);
       try {
         await deleteFolder(folderId);
-        const remaining = folders.filter((folder) => folder.id !== folderId);
-        setFolders(remaining);
+        setFolders((prev) => prev.filter((folder) => folder.id !== folderId));
 
         if (selectedFolderId === folderId) {
-          const nextFolderId = remaining[0]?.id ?? null;
-          setSelectedFolderId(nextFolderId);
+          setSelectedFolderId(null);
           setSelectedNoteId(null);
           setActiveNote(null);
           setDraftTitle('');
           setDraftContent('');
-          if (nextFolderId == null) setNotes([]);
+          setNotes([]);
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : '폴더 삭제에 실패했습니다.';
@@ -304,7 +337,7 @@ export function useNotes() {
 
   const handleCreateNote = useCallback(async () => {
     if (selectedFolderId == null) {
-      setActionError('먼저 폴더를 선택하세요.');
+      setActionError('먼저 폴더를 열어주세요.');
       return;
     }
 
@@ -390,8 +423,18 @@ export function useNotes() {
     isSaving,
     error,
     actionError,
-    selectFolder,
-    selectNote,
+    openFolder,
+    leaveFolder,
+    openNote,
+    leaveNote,
+    hasPrevNote,
+    hasNextNote,
+    goToPrevNote,
+    goToNextNote,
+    notePosition:
+      currentNoteIndex >= 0 && notes.length > 0
+        ? { current: currentNoteIndex + 1, total: notes.length }
+        : null,
     handleCreateFolder,
     handleRenameFolder,
     handleDeleteFolder,

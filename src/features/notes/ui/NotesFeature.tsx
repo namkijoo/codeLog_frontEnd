@@ -1,8 +1,9 @@
 'use client';
 
 import { useNotes } from '../model/useNotes';
+import { FolderContents } from './FolderContents';
+import { FolderGrid } from './FolderGrid';
 import { NotesEditor } from './NotesEditor';
-import { NotesSidebar } from './NotesSidebar';
 import { Spinner } from '@/shared/ui';
 
 export function NotesFeature() {
@@ -10,7 +11,6 @@ export function NotesFeature() {
     folders,
     notes,
     selectedFolder,
-    selectedFolderId,
     selectedNoteId,
     activeNote,
     draftTitle,
@@ -23,8 +23,15 @@ export function NotesFeature() {
     isSaving,
     error,
     actionError,
-    selectFolder,
-    selectNote,
+    openFolder,
+    leaveFolder,
+    openNote,
+    leaveNote,
+    hasPrevNote,
+    hasNextNote,
+    goToPrevNote,
+    goToNextNote,
+    notePosition,
     handleCreateFolder,
     handleRenameFolder,
     handleDeleteFolder,
@@ -49,28 +56,23 @@ export function NotesFeature() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <NotesSidebar
-        folders={folders}
-        notes={notes}
-        selectedFolderId={selectedFolderId}
-        selectedNoteId={selectedNoteId}
-        isFoldersLoading={isFoldersLoading}
-        isNotesLoading={isNotesLoading}
-        onSelectFolder={selectFolder}
-        onSelectNote={selectNote}
-        onCreateFolder={handleCreateFolder}
-        onRenameFolder={handleRenameFolder}
-        onDeleteFolder={handleDeleteFolder}
-        onCreateNote={handleCreateNote}
-      />
+    <div className="flex min-h-0 flex-1 flex-col">
+      {actionError && (
+        <div className="border-b border-[#fecaca] bg-[#fef2f2] px-6 py-2 text-[12.5px] font-medium text-[#b91c1c]">
+          {actionError}
+        </div>
+      )}
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        {actionError && (
-          <div className="border-b border-[#fecaca] bg-[#fef2f2] px-6 py-2 text-[12.5px] font-medium text-[#b91c1c]">
-            {actionError}
-          </div>
-        )}
+      {selectedFolder == null ? (
+        <FolderGrid
+          folders={folders}
+          isLoading={isFoldersLoading}
+          onOpenFolder={openFolder}
+          onCreateFolder={handleCreateFolder}
+          onRenameFolder={handleRenameFolder}
+          onDeleteFolder={handleDeleteFolder}
+        />
+      ) : selectedNoteId != null ? (
         <NotesEditor
           selectedFolder={selectedFolder}
           activeNote={activeNote}
@@ -78,11 +80,26 @@ export function NotesFeature() {
           draftContent={draftContent}
           onTitleChange={setDraftTitle}
           onContentChange={setDraftContent}
+          onBack={leaveNote}
           onDeleteNote={handleDeleteNote}
+          onPrevNote={goToPrevNote}
+          onNextNote={goToNextNote}
+          hasPrevNote={hasPrevNote}
+          hasNextNote={hasNextNote}
+          notePosition={notePosition}
           isNoteLoading={isNoteLoading}
           isSaving={isSaving}
         />
-      </div>
+      ) : (
+        <FolderContents
+          folder={selectedFolder}
+          notes={notes}
+          isLoading={isNotesLoading}
+          onBack={leaveFolder}
+          onOpenNote={openNote}
+          onCreateNote={handleCreateNote}
+        />
+      )}
     </div>
   );
 }
