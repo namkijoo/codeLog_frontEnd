@@ -1,10 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { createBoard } from '../api/boards';
 import {
-  DEFAULT_CODE,
-  DEFAULT_MEMO,
   LANGUAGES,
   type Difficulty,
   type LanguageId,
@@ -45,16 +44,17 @@ function buildBoardRequest(state: {
 }
 
 export function useProblemRecord() {
+  const router = useRouter();
   const [platform, setPlatform] = useState<Platform>('프로그래머스');
-  const [problemNumber, setProblemNumber] = useState('14502');
+  const [problemNumber, setProblemNumber] = useState('');
   const [difficulty, setDifficulty] = useState<Difficulty>('Lv. 0');
-  const [title, setTitle] = useState('연구소');
-  const [problemUrl, setProblemUrl] = useState('https://school.programmers.co.kr/learn/courses/30/lessons/14502');
-  const [tags, setTags] = useState<string[]>(['DFS/BFS', '구현', '백트래킹']);
+  const [title, setTitle] = useState('');
+  const [problemUrl, setProblemUrl] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
-  const [memo, setMemo] = useState(DEFAULT_MEMO);
+  const [memo, setMemo] = useState('');
   const [language, setLanguage] = useState<LanguageId>('javascript');
-  const [code, setCode] = useState(DEFAULT_CODE);
+  const [code, setCode] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -77,10 +77,11 @@ export function useProblemRecord() {
 
   const handleTagKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        addTag();
-      }
+      if (event.key !== 'Enter') return;
+      // 한글 IME 조합 중 Enter는 조합 확정용이라 태그 추가를 건너뛴다.
+      if (event.nativeEvent.isComposing || event.keyCode === 229) return;
+      event.preventDefault();
+      addTag();
     },
     [addTag],
   );
@@ -108,6 +109,7 @@ export function useProblemRecord() {
     try {
       await createBoard(request);
       window.alert('풀이가 기록되었습니다! 🚀');
+      router.push('/completed');
     } catch (err) {
       const message = err instanceof Error ? err.message : '풀이 기록에 실패했습니다.';
       window.alert(message);
@@ -124,6 +126,7 @@ export function useProblemRecord() {
     memo,
     language,
     code,
+    router,
   ]);
 
   return {
